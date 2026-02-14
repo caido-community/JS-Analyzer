@@ -9,5 +9,5 @@ concurrency:
 
 jobs:
   check:
-    name: Lint, typecheck, test, knip
+    name: Check
     uses: ./.github/workflows/validate.yml
