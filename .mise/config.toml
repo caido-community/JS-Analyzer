@@ -1,0 +1,39 @@
+[tools]
+node = "20"
+pnpm = "9"
+
+[tasks.lint]
+description = "Run ESLint (fix)"
+run = "pnpm lint"
+
+[tasks.typecheck]
+description = "Run TypeScript check in all packages"
+run = "pnpm typecheck"
+
+[tasks.test]
+description = "Run backend tests"
+run = "pnpm test"
+
+[tasks.test-watch]
+description = "Run backend tests in watch mode"
+run = "pnpm test:watch"
+
+[tasks.knip]
+description = "Find unused files and exports"
+run = "pnpm knip"
+
+[tasks.build]
+description = "Build the plugin"
+run = "pnpm build"
+
+[tasks.watch]
+description = "Watch and rebuild on changes"
+run = "pnpm watch"
+
+[tasks.dev]
+description = "Run quality gates: lint, typecheck, knip"
+run = ["pnpm lint", "pnpm typecheck", "pnpm knip"]
+
+[tasks.run]
+description = "Build then watch"
+run = ["pnpm build", "pnpm watch"]
