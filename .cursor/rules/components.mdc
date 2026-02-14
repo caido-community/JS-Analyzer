@@ -33,3 +33,33 @@ ComponentName/
        ├─ index.ts
        └─ Container.vue
 ```
+
+## State Rendering Pattern (for async data)
+
+When a component displays data loaded asynchronously, add state sub-components:
+
+```text
+ComponentName/
+  ├─ index.ts
+  ├─ Container.vue      # Dispatches to Loading/Success/Failed
+  ├─ Loading.vue        # Loading state (spinner, skeleton)
+  ├─ Success.vue        # Success state (actual content)
+  ├─ Failed.vue         # Error state (message, retry)
+  └─ useXxx.ts          # Logic composable
+```
+
+Container.vue dispatches based on state type:
+```vue
+<template>
+  <Loading v-if="state.type === 'Loading'" />
+  <Failed v-else-if="state.type === 'Error'" :error="state.error" />
+  <Success v-else-if="state.type === 'Success'" :data="state.data" />
+  <InvalidState v-else />
+</template>
+```
+
+## Data Flow
+
+- Components get data from **services** (which compose stores + repositories).
+- Components never call `sdk.backend.*` directly.
+- Use `defineOptions({ name: "ComponentName" })` in Container.vue.

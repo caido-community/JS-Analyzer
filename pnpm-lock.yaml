@@ -40,6 +40,10 @@ importers:
         version: 5.5.4
 
   packages/backend:
+    dependencies:
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@caido/sdk-backend':
         specifier: ^0.46.0
@@ -75,9 +79,14 @@ importers:
       backend:
         specifier: workspace:*
         version: link:../backend
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       vue-tsc:
         specifier: 2.0.29
         version: 2.0.29(typescript@5.5.4)
+
+  packages/shared: {}
 
 packages:
 
