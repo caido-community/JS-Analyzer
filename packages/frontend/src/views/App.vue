@@ -1,27 +1,64 @@
 <script setup lang="ts">
 import Button from "primevue/button";
-import InputText from "primevue/inputtext";
-import { ref } from "vue";
+import MenuBar from "primevue/menubar";
+import { computed, ref } from "vue";
 
-import { useSDK } from "@/plugins/sdk";
+import Files from "@/views/Files.vue";
+import Scans from "@/views/Scans.vue";
 
-// Retrieve the SDK instance to interact with the backend
-const sdk = useSDK();
+const page = ref<"Files" | "Scans">("Files");
+const items = [
+  {
+    label: "Files",
+    class: "mx-1",
+    isActive: () => page.value === "Files",
+    command: () => {
+      page.value = "Files";
+    },
+  },
+  {
+    label: "Scans",
+    class: "mx-1",
+    isActive: () => page.value === "Scans",
+    command: () => {
+      page.value = "Scans";
+    },
+  },
+];
 
-const myVar = ref("Hello World");
-
-// Call the backend to generate a random string
-const onGenerateClick = async () => {
-  const result = await sdk.backend.generateRandomString(10);
-  myVar.value = result;
-};
+const component = computed(() => {
+  switch (page.value) {
+    case "Files":
+      return Files;
+    case "Scans":
+      return Scans;
+    default:
+      return undefined;
+  }
+});
 </script>
 
 <template>
-  <div class="h-full flex justify-center items-center">
-    <div class="flex flex-col gap-1">
-      <Button label="Generate random string" @click="onGenerateClick" />
-      <InputText :model-value="myVar" readonly />
+  <div class="h-full flex flex-col gap-1">
+    <MenuBar :model="items" class="h-12 gap-2 border-surface-700">
+      <template #start>
+        <div class="px-2 font-bold text-gray-300">JS Analyzer</div>
+      </template>
+
+      <template #item="{ item }">
+        <Button
+          :severity="item.isActive?.() ? 'secondary' : 'contrast'"
+          :outlined="item.isActive?.()"
+          size="small"
+          :text="!item.isActive?.()"
+          :label="item.label"
+          class="!border-surface-700"
+          @mousedown="item.command?.()"
+        />
+      </template>
+    </MenuBar>
+    <div class="flex-1 min-h-0">
+      <component :is="component" />
     </div>
   </div>
 </template>
