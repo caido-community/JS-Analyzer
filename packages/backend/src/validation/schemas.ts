@@ -18,4 +18,10 @@ export const configUpdateSchema = z.object({
   enabledAnalyzers: z.array(z.enum(ANALYZER_KINDS)).optional(),
   autoScanEnabled: z.boolean().optional(),
   inScopeOnly: z.boolean().optional(),
+  allowNetworkRequests: z.boolean().optional(),
+});
+
+export const scanRequestSchema = z.object({
+  requestIds: z.array(z.string()).min(1),
+  analyzers: z.array(z.enum(ANALYZER_KINDS)).min(1),
 });

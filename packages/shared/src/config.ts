@@ -4,4 +4,5 @@ export type UserConfig = {
   enabledAnalyzers: AnalyzerKind[];
   autoScanEnabled: boolean;
   inScopeOnly: boolean;
+  allowNetworkRequests: boolean;
 };

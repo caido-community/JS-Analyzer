@@ -9,6 +9,7 @@ export type {
   AnalyzerKind,
   ScanStatus,
   AnalyzerMatch,
+  NpmVerificationResult,
   ScanResultEntry,
   ScanResult,
 } from "./scan";

@@ -13,6 +13,7 @@ const DEFAULT_USER_CONFIG: UserConfig = {
   ] satisfies AnalyzerKind[],
   autoScanEnabled: false,
   inScopeOnly: false,
+  allowNetworkRequests: false,
 };
 
 let store: GlobalStore<UserConfig> | undefined;

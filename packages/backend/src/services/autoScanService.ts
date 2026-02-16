@@ -6,6 +6,21 @@ import { emit } from "../events";
 import type { API, BackendEvents } from "../index";
 import { getConfigStore } from "../stores";
 
+const autoScanQueue: Array<{
+  requestId: string;
+  url: string;
+  host: string;
+  contentType: string;
+}> = [];
+
+export function getAutoScanQueue(): typeof autoScanQueue {
+  return autoScanQueue;
+}
+
+export function clearAutoScanQueue(): void {
+  autoScanQueue.length = 0;
+}
+
 export function registerAutoScan(sdk: SDK<API, BackendEvents>): void {
   sdk.events.onInterceptResponse((_sdk, request, response) => {
     handleInterceptedResponse(sdk, request, response);
@@ -34,6 +49,9 @@ function handleInterceptedResponse(
   if (config.inScopeOnly && !sdk.requests.inScope(request)) return;
 
   const host = request.getHost();
+  const requestId = request.getId() as string;
+
+  autoScanQueue.push({ requestId, url, host, contentType });
 
   emit("asset-detected", { url, host, contentType });
 

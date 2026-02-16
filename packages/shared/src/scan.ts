@@ -13,8 +13,16 @@ export type AnalyzerMatch = {
   value: string;
   startOffset: number;
   endOffset: number;
+  rawStartOffset: number | undefined;
+  rawEndOffset: number | undefined;
   confidence: "low" | "medium" | "high";
   context: string;
+};
+
+export type NpmVerificationResult = {
+  packageName: string;
+  exists: boolean;
+  isOrgClaimed: boolean | undefined;
 };
 
 export type ScanResultEntry = {
