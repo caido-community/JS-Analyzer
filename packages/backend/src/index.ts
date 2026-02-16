@@ -6,6 +6,12 @@ import type {
   ScanProgressEvent,
 } from "shared";
 
+import { getConfig, updateConfig } from "./api/config";
+import { getStaticAssets } from "./api/staticAssets";
+import { setSDK } from "./sdk";
+import { registerAutoScan } from "./services/autoScanService";
+import { getScanResultsStore } from "./stores";
+
 export type BackendEvents = DefineEvents<{
   "scan-progress": (data: ScanProgressEvent) => void;
   "scan-complete": (data: ScanCompleteEvent) => void;
@@ -18,8 +24,28 @@ function ping(): Result<{ ok: true }> {
 
 export type API = DefineAPI<{
   ping: typeof ping;
+  getStaticAssets: typeof getStaticAssets;
+  getConfig: typeof getConfig;
+  updateConfig: typeof updateConfig;
 }>;
 
 export function init(sdk: SDK<API, BackendEvents>) {
+  setSDK(sdk);
+
   sdk.api.register("ping", ping);
+  sdk.api.register("getStaticAssets", getStaticAssets);
+  sdk.api.register("getConfig", getConfig);
+  sdk.api.register("updateConfig", updateConfig);
+
+  registerAutoScan(sdk);
+
+  const scanResultsStore = getScanResultsStore();
+  scanResultsStore.initialize().catch((err) => {
+    sdk.console.error(`Failed to initialize scan results store: ${err}`);
+  });
+
+  sdk.events.onProjectChange((_eventSdk, project) => {
+    const projectId = project !== null ? project.getId() : undefined;
+    scanResultsStore.switchProject(projectId as string | undefined);
+  });
 }

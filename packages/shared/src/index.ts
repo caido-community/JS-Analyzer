@@ -5,3 +5,12 @@ export type {
   ScanCompleteEvent,
   AssetDetectedEvent,
 } from "./events";
+export type {
+  AnalyzerKind,
+  ScanStatus,
+  AnalyzerMatch,
+  ScanResultEntry,
+  ScanResult,
+} from "./scan";
+export type { JsAnalyzerFilter, StaticAssetEntry } from "./filter";
+export type { UserConfig } from "./config";
