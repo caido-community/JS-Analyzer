@@ -6,6 +6,15 @@ export type AnalyzerKind =
   | "dependencyConfusion"
   | "inlineSourceMap";
 
+export const ALL_ANALYZER_KINDS: AnalyzerKind[] = [
+  "secrets",
+  "subdomains",
+  "cloudUrls",
+  "apiEndpoints",
+  "dependencyConfusion",
+  "inlineSourceMap",
+];
+
 export type ScanStatus = "Idle" | "Scanning" | "Complete" | "Error";
 
 export type AnalyzerMatch = {
@@ -29,6 +38,7 @@ export type ScanResultEntry = {
   requestId: string;
   url: string;
   matches: AnalyzerMatch[];
+  responseBody?: string;
 };
 
 export type ScanResult = {

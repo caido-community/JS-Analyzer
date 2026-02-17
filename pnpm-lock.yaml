@@ -52,8 +52,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@caido/sdk-backend':
-        specifier: ^0.46.0
-        version: 0.46.0
+        specifier: ^0.55.3
+        version: 0.55.3
       '@types/js-beautify':
         specifier: ^1.14.3
         version: 1.14.3
@@ -77,11 +77,14 @@ importers:
         version: 3.4.37(typescript@5.5.4)
     devDependencies:
       '@caido/sdk-backend':
-        specifier: ^0.46.0
-        version: 0.46.0
+        specifier: ^0.55.3
+        version: 0.55.3
       '@caido/sdk-frontend':
-        specifier: ^0.46.0
-        version: 0.46.0(@codemirror/view@6.28.1)
+        specifier: ^0.55.3
+        version: 0.55.3(@ai-sdk/provider@3.0.8)(@codemirror/state@6.5.4)(@codemirror/view@6.28.1)(vue@3.4.37(typescript@5.5.4))
+      '@codemirror/state':
+        specifier: 6.5.4
+        version: 6.5.4
       '@codemirror/view':
         specifier: 6.28.1
         version: 6.28.1
@@ -98,6 +101,10 @@ importers:
   packages/shared: {}
 
 packages:
+
+  '@ai-sdk/provider@3.0.8':
+    resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
+    engines: {node: '>=18'}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -137,16 +144,19 @@ packages:
   '@caido/primevue@0.1.2':
     resolution: {integrity: sha512-PCv6qyvlWEKB97PLRzPHDjs7ZGW5JQrD6jvJiMEiprfu4IR5/dXiqRJ4M5g293qn+RAffBuiXcna0vWSxrg5lQ==}
 
-  '@caido/quickjs-types@0.17.2':
-    resolution: {integrity: sha512-5kcucGORMNEbcdU91yKLYZG/TFDqsO6XmCZ1TnU6V48E61mmqrJg6kjrfOFP1WOugDm+ZcGd/Su3p3XkFXfaPg==}
+  '@caido/quickjs-types@0.25.4':
+    resolution: {integrity: sha512-U7Cvi4aHoCN8T2JB+Az3ArqQ3MUK0PRCtBm5Sq1rfqaJ9NymAkh3O29q77Keh3G/zINq2WTkKZq5qJlvrQNl+Q==}
 
-  '@caido/sdk-backend@0.46.0':
-    resolution: {integrity: sha512-peUKW/4Nrw9WVxIahc+6KrVtxA7vsbpuJqOoBxudxq7tQJ+cV9IEqzvYoFFo8KlnrTkeUQUJvd0W4WsM3HgxEg==}
+  '@caido/sdk-backend@0.55.3':
+    resolution: {integrity: sha512-kOrkBtmu8U0qo4kJje7C0BOO9PWf7skKAJM77bVeWJ6aIkxsnBzRyxVxdaD77UbKK3oVT5xUgSx62Ns3xjzSEw==}
 
-  '@caido/sdk-frontend@0.46.0':
-    resolution: {integrity: sha512-yCSxRKiSXMVjbyvdrB2eTKCLS8ArcbSsYUgyIhGum3AmvuHwLX255mV5JV+M0FUpC1jdKaP9zhSSZandgPRqrg==}
+  '@caido/sdk-frontend@0.55.3':
+    resolution: {integrity: sha512-ALKnwVAaOQthX9ZVZwJJaQE6abQtvlhjL2kK9a6z0dzfrygAj8LqIV7PKanqzona+8g1DkLJ5ptjNd0q/XtcAA==}
     peerDependencies:
+      '@ai-sdk/provider': ^3.0.1
+      '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
+      vue: ^3.0.0
 
   '@caido/sdk-shared@0.1.1':
     resolution: {integrity: sha512-JAV5ajUqxZdXYPTmDEvIKBZon8I5uHq44ATj0Nj3BVpllRDUGY9kcBd+PXMD50+3lv1CvhR3/f6q24T0+4aVJQ==}
@@ -1965,6 +1975,9 @@ packages:
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
+  json-schema@0.4.0:
+    resolution: {integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==}
+
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
@@ -3004,6 +3017,10 @@ packages:
 
 snapshots:
 
+  '@ai-sdk/provider@3.0.8':
+    dependencies:
+      json-schema: 0.4.0
+
   '@alloc/quick-lru@5.2.0': {}
 
   '@babel/helper-string-parser@7.27.1': {}
@@ -3079,16 +3096,19 @@ snapshots:
 
   '@caido/primevue@0.1.2': {}
 
-  '@caido/quickjs-types@0.17.2': {}
+  '@caido/quickjs-types@0.25.4': {}
 
-  '@caido/sdk-backend@0.46.0':
+  '@caido/sdk-backend@0.55.3':
     dependencies:
-      '@caido/quickjs-types': 0.17.2
+      '@caido/quickjs-types': 0.25.4
       '@caido/sdk-shared': 0.1.1
 
-  '@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1)':
+  '@caido/sdk-frontend@0.55.3(@ai-sdk/provider@3.0.8)(@codemirror/state@6.5.4)(@codemirror/view@6.28.1)(vue@3.4.37(typescript@5.5.4))':
     dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@codemirror/state': 6.5.4
       '@codemirror/view': 6.28.1
+      vue: 3.4.37(typescript@5.5.4)
 
   '@caido/sdk-shared@0.1.1': {}
 
@@ -4919,6 +4939,8 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
+
+  json-schema@0.4.0: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 

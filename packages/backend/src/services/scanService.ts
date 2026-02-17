@@ -114,6 +114,7 @@ export async function startPassiveScan(
     if (rawContent === undefined) return entry;
     return {
       ...entry,
+      responseBody: rawContent,
       matches: mapBeautifiedOffsetsToRaw(rawContent, entry.matches),
     };
   });
@@ -229,15 +230,23 @@ function extractPackageName(value: string): string {
   return value;
 }
 
+function stripResponseBodies(result: ScanResult): ScanResult {
+  return {
+    ...result,
+    entries: result.entries.map(({ responseBody: _, ...entry }) => entry),
+  };
+}
+
 function persistScanResult(result: ScanResult): void {
   const store = getScanResultsStore();
+  const stripped = stripResponseBodies(result);
   store.update((current) => {
     const existing = current.findIndex((r) => r.id === result.id);
     if (existing !== -1) {
       const updated = [...current];
-      updated[existing] = result;
+      updated[existing] = stripped;
       return updated;
     }
-    return [...current, result];
+    return [...current, stripped];
   });
 }

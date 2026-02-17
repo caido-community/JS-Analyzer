@@ -14,7 +14,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@caido/sdk-backend": "^0.46.0",
+    "@caido/sdk-backend": "^0.55.3",
     "@types/js-beautify": "^1.14.3",
     "vitest": "^2.1.0"
   }

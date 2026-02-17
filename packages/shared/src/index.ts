@@ -13,5 +13,6 @@ export type {
   ScanResultEntry,
   ScanResult,
 } from "./scan";
+export { ALL_ANALYZER_KINDS } from "./scan";
 export type { JsAnalyzerFilter, StaticAssetEntry } from "./filter";
 export type { UserConfig } from "./config";

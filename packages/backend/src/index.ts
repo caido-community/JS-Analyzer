@@ -7,7 +7,12 @@ import type {
 } from "shared";
 
 import { getConfig, updateConfig } from "./api/config";
-import { cancelScan, getScanResults, runPassiveScan } from "./api/scan";
+import {
+  cancelScan,
+  getScanResults,
+  runPassiveScan,
+  runPassiveScanOnContent,
+} from "./api/scan";
 import { getStaticAssets } from "./api/staticAssets";
 import { setSDK } from "./sdk";
 import { registerAutoScan } from "./services/autoScanService";
@@ -29,6 +34,7 @@ export type API = DefineAPI<{
   getConfig: typeof getConfig;
   updateConfig: typeof updateConfig;
   runPassiveScan: typeof runPassiveScan;
+  runPassiveScanOnContent: typeof runPassiveScanOnContent;
   getScanResults: typeof getScanResults;
   cancelScan: typeof cancelScan;
 }>;
@@ -41,6 +47,7 @@ export function init(sdk: SDK<API, BackendEvents>) {
   sdk.api.register("getConfig", getConfig);
   sdk.api.register("updateConfig", updateConfig);
   sdk.api.register("runPassiveScan", runPassiveScan);
+  sdk.api.register("runPassiveScanOnContent", runPassiveScanOnContent);
   sdk.api.register("getScanResults", getScanResults);
   sdk.api.register("cancelScan", cancelScan);
 
