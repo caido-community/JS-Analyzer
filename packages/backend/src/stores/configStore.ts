@@ -14,6 +14,8 @@ const DEFAULT_USER_CONFIG: UserConfig = {
   autoScanEnabled: false,
   inScopeOnly: false,
   allowNetworkRequests: false,
+  autoLoadEnabled: false,
+  autoLoadIntervalSeconds: 30,
 };
 
 let store: GlobalStore<UserConfig> | undefined;

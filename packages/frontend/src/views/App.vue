@@ -5,8 +5,9 @@ import { computed, ref } from "vue";
 
 import Files from "@/views/Files.vue";
 import Scans from "@/views/Scans.vue";
+import Settings from "@/views/Settings.vue";
 
-const page = ref<"Files" | "Scans">("Files");
+const page = ref<"Files" | "Scans" | "Settings">("Files");
 const items = [
   {
     label: "Files",
@@ -24,6 +25,14 @@ const items = [
       page.value = "Scans";
     },
   },
+  {
+    label: "Settings",
+    class: "mx-1",
+    isActive: () => page.value === "Settings",
+    command: () => {
+      page.value = "Settings";
+    },
+  },
 ];
 
 const component = computed(() => {
@@ -32,6 +41,8 @@ const component = computed(() => {
       return Files;
     case "Scans":
       return Scans;
+    case "Settings":
+      return Settings;
     default:
       return undefined;
   }

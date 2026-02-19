@@ -7,6 +7,7 @@ import type {
 } from "shared";
 
 import { getConfig, updateConfig } from "./api/config";
+import { getResponseBody } from "./api/responseBody";
 import {
   cancelScan,
   getScanResults,
@@ -33,6 +34,7 @@ export type API = DefineAPI<{
   getStaticAssets: typeof getStaticAssets;
   getConfig: typeof getConfig;
   updateConfig: typeof updateConfig;
+  getResponseBody: typeof getResponseBody;
   runPassiveScan: typeof runPassiveScan;
   runPassiveScanOnContent: typeof runPassiveScanOnContent;
   getScanResults: typeof getScanResults;
@@ -46,6 +48,7 @@ export function init(sdk: SDK<API, BackendEvents>) {
   sdk.api.register("getStaticAssets", getStaticAssets);
   sdk.api.register("getConfig", getConfig);
   sdk.api.register("updateConfig", updateConfig);
+  sdk.api.register("getResponseBody", getResponseBody);
   sdk.api.register("runPassiveScan", runPassiveScan);
   sdk.api.register("runPassiveScanOnContent", runPassiveScanOnContent);
   sdk.api.register("getScanResults", getScanResults);

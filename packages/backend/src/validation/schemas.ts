@@ -19,6 +19,8 @@ export const configUpdateSchema = z.object({
   autoScanEnabled: z.boolean().optional(),
   inScopeOnly: z.boolean().optional(),
   allowNetworkRequests: z.boolean().optional(),
+  autoLoadEnabled: z.boolean().optional(),
+  autoLoadIntervalSeconds: z.number().min(5).max(3600).optional(),
 });
 
 export const scanRequestSchema = z.object({

@@ -90,6 +90,7 @@ export async function startPassiveScan(
         });
 
         sdk.api.send("scan-progress", {
+          scanId,
           scannedFiles: progress.scannedFiles,
           totalFiles: progress.totalFiles,
           currentFile: progress.currentFile,

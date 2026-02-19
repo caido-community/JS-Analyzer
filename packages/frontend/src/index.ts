@@ -1,7 +1,7 @@
 import { Classic } from "@caido/primevue";
 import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
-import { ALL_ANALYZER_KINDS } from "shared";
+import { ALL_ANALYZER_KINDS, type AnalyzerKind } from "shared";
 import { createApp } from "vue";
 
 import ResponseViewModeContainer from "./components/ResponseViewMode/Container.vue";
@@ -72,10 +72,13 @@ export const init = (sdk: FrontendSDK) => {
         duration: 2000,
       });
 
-      const result = await sdk.backend.runPassiveScan(
-        requestIds,
-        ALL_ANALYZER_KINDS,
-      );
+      let analyzers: AnalyzerKind[] = [...ALL_ANALYZER_KINDS];
+      const configResult = await sdk.backend.getConfig();
+      if (configResult.kind === "Ok") {
+        analyzers = configResult.value.enabledAnalyzers;
+      }
+
+      const result = await sdk.backend.runPassiveScan(requestIds, analyzers);
 
       if (result.kind === "Error") {
         sdk.window.showToast(result.error, { variant: "error" });

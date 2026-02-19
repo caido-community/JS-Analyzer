@@ -90,10 +90,16 @@ async function runAnalysis() {
       return;
     }
 
+    let analyzers: AnalyzerKind[] = [...ALL_ANALYZER_KINDS];
+    const configResult = await typedSdk.value.backend.getConfig();
+    if (configResult.kind === "Ok") {
+      analyzers = configResult.value.enabledAnalyzers;
+    }
+
     const result = await typedSdk.value.backend.runPassiveScanOnContent(
       body,
       "",
-      ALL_ANALYZER_KINDS,
+      analyzers,
     );
     if (result.kind === "Error") {
       state.value = { type: "Error", error: result.error };

@@ -5,4 +5,6 @@ export type UserConfig = {
   autoScanEnabled: boolean;
   inScopeOnly: boolean;
   allowNetworkRequests: boolean;
+  autoLoadEnabled: boolean;
+  autoLoadIntervalSeconds: number;
 };

@@ -10,6 +10,7 @@ export async function getStaticAssetsFromHistory(
   filter: JsAnalyzerFilter,
 ): Promise<StaticAssetEntry[]> {
   const assets: StaticAssetEntry[] = [];
+  const seen = new Set<string>();
   let cursor: Cursor | undefined;
 
   while (true) {
@@ -46,6 +47,12 @@ export async function getStaticAssetsFromHistory(
 
       if (!isStaticAsset(contentType, url)) continue;
 
+      const host = request.getHost();
+      const path = request.getPath();
+      const dedupeKey = `${host}${path}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
       const body = response.getBody();
       const size = body !== undefined ? body.toRaw().length : 0;
 
@@ -53,8 +60,8 @@ export async function getStaticAssetsFromHistory(
         requestId: request.getId() as string,
         responseId: response.getId() as string,
         url,
-        host: request.getHost(),
-        path: request.getPath(),
+        host,
+        path,
         contentType,
         size,
       });

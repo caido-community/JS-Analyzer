@@ -6,13 +6,6 @@ const JS_CONTENT_TYPES = [
   "text/ecmascript",
 ] as const;
 
-const JSON_CONTENT_TYPES = ["application/json"] as const;
-
-const ALL_STATIC_CONTENT_TYPES = [
-  ...JS_CONTENT_TYPES,
-  ...JSON_CONTENT_TYPES,
-] as const;
-
 const JS_EXTENSIONS = [".js", ".mjs", ".cjs"] as const;
 const JSON_EXTENSIONS = [".json"] as const;
 const MAP_EXTENSIONS = [".map"] as const;
@@ -23,9 +16,9 @@ const ALL_STATIC_EXTENSIONS = [
   ...MAP_EXTENSIONS,
 ] as const;
 
-function isStaticAssetContentType(contentType: string): boolean {
+function isJsContentType(contentType: string): boolean {
   const lower = contentType.toLowerCase();
-  return ALL_STATIC_CONTENT_TYPES.some((ct) => lower.includes(ct));
+  return JS_CONTENT_TYPES.some((ct) => lower.includes(ct));
 }
 
 function isStaticAssetUrl(url: string): boolean {
@@ -42,7 +35,7 @@ function isTextPlainWithStaticUrl(contentType: string, url: string): boolean {
 
 export function isStaticAsset(contentType: string, url: string): boolean {
   return (
-    isStaticAssetContentType(contentType) ||
+    isJsContentType(contentType) ||
     isStaticAssetUrl(url) ||
     isTextPlainWithStaticUrl(contentType, url)
   );

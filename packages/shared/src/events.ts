@@ -1,4 +1,5 @@
 export type ScanProgressEvent = {
+  scanId: string;
   scannedFiles: number;
   totalFiles: number;
   currentFile: string;
