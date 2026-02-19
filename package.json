@@ -7,7 +7,9 @@
     "lint": "eslint ./packages/**/src --fix",
     "knip": "knip",
     "build": "caido-dev build",
-    "watch": "caido-dev watch"
+    "watch": "caido-dev watch",
+    "test": "pnpm --filter backend test",
+    "test:watch": "pnpm --filter backend run test:watch"
   },
   "devDependencies": {
     "@caido-community/dev": "^0.1.3",

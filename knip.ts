@@ -13,6 +13,11 @@ const config: RawConfigurationOrFn = {
     "packages/frontend": {
       entry: ["src/index.ts"],
       project: ["src/**/*.{ts,tsx,vue}"],
+      ignore: ["src/plugins/sdk.ts"],
+    },
+    "packages/shared": {
+      entry: ["src/index.ts"],
+      project: ["src/**/*.ts"],
     },
   },
 };
