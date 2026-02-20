@@ -12,10 +12,10 @@ export default defineConfig({
   id,
   name: "JS Analyzer",
   description: "JavaScript and static file analysis for Caido",
-  version: "0.0.0",
+  version: "1.0.0",
   author: {
-    name: "Caido Labs Inc.",
-    email: "dev@caido.io",
+    name: "Amr Elsagaei",
+    email: "amr@caido.io",
     url: "https://caido.io",
   },
   plugins: [
