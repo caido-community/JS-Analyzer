@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 
-import { getHighlightBodyParts } from "./useScanResults";
+import { getHighlightBodyParts } from "@/composables/useScanResults";
 
 const props = defineProps<{
   body: string;

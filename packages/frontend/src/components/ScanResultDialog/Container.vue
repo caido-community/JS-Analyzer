@@ -1,18 +1,25 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import Panel from "primevue/panel";
+import SplitButton from "primevue/splitbutton";
 import type { ScanResult } from "shared";
 import { computed, ref, toRef } from "vue";
 
 import MatchRow from "./MatchRow.vue";
 import ResponsePreview from "./ResponsePreview.vue";
 import ResultSummary from "./ResultSummary.vue";
+
 import {
+  buildFindingDedupeKey,
+  buildFindingDescription,
+  buildFindingTitle,
   copyAllMatches,
+  downloadFile,
+  exportToCsv,
+  exportToJson,
   type MatchWithSource,
   useScanResults,
-} from "./useScanResults";
-
+} from "@/composables/useScanResults";
 import type { FrontendSDK } from "@/types";
 
 const props = defineProps<{
@@ -58,6 +65,109 @@ async function handleCopyAll(matches: MatchWithSource[]) {
   });
 }
 
+const exportMenuItems = [
+  {
+    label: "Export CSV",
+    icon: "fas fa-file-csv",
+    command: () => {
+      const csv = exportToCsv(grouped.value);
+      downloadFile(csv, `js-analyzer-${props.scanResult.id}.csv`);
+      props.sdk.window.showToast("Exported to CSV", {
+        variant: "success",
+        duration: 1500,
+      });
+    },
+  },
+  {
+    label: "Export JSON",
+    icon: "fas fa-file-code",
+    command: () => {
+      const json = exportToJson(props.scanResult);
+      downloadFile(json, `js-analyzer-${props.scanResult.id}.json`);
+      props.sdk.window.showToast("Exported to JSON", {
+        variant: "success",
+        duration: 1500,
+      });
+    },
+  },
+];
+
+function onExportCsv() {
+  const csv = exportToCsv(grouped.value);
+  downloadFile(csv, `js-analyzer-${props.scanResult.id}.csv`);
+  props.sdk.window.showToast("Exported to CSV", {
+    variant: "success",
+    duration: 1500,
+  });
+}
+
+async function handleReport(match: MatchWithSource) {
+  if (match.requestId === "inline") return;
+  const title = buildFindingTitle(match);
+  const description = buildFindingDescription(match, match.sourceUrl);
+  const dedupeKey = buildFindingDedupeKey(
+    match.requestId,
+    match.analyzerKind,
+    match.value,
+  );
+  const result = await props.sdk.findings.createFinding(match.requestId, {
+    title,
+    description,
+    reporter: "JS Analyzer",
+    dedupeKey,
+  });
+  if (result !== undefined) {
+    props.sdk.window.showToast("Reported to Findings", {
+      variant: "success",
+      duration: 1500,
+    });
+  } else {
+    props.sdk.window.showToast("Finding already exists", {
+      variant: "info",
+      duration: 1500,
+    });
+  }
+}
+
+async function handleReportAll(matches: MatchWithSource[]) {
+  const reportable = matches.filter((m) => m.requestId !== "inline");
+  if (reportable.length === 0) {
+    props.sdk.window.showToast("No reportable matches (inline scan)", {
+      variant: "info",
+      duration: 1500,
+    });
+    return;
+  }
+  let reported = 0;
+  let skipped = 0;
+  for (const match of reportable) {
+    const dedupeKey = buildFindingDedupeKey(
+      match.requestId,
+      match.analyzerKind,
+      match.value,
+    );
+    const result = await props.sdk.findings.createFinding(match.requestId, {
+      title: buildFindingTitle(match),
+      description: buildFindingDescription(match, match.sourceUrl),
+      reporter: "JS Analyzer",
+      dedupeKey,
+    });
+    if (result !== undefined) {
+      reported++;
+    } else {
+      skipped++;
+    }
+  }
+  const msg =
+    skipped > 0
+      ? `Reported ${reported} to Findings (${skipped} already existed)`
+      : `Reported ${reported} to Findings`;
+  props.sdk.window.showToast(msg, {
+    variant: "success",
+    duration: 2000,
+  });
+}
+
 function onDragStart(e: MouseEvent) {
   e.preventDefault();
   isDragging.value = true;
@@ -87,7 +197,20 @@ function onDragStart(e: MouseEvent) {
     class="flex flex-col"
     style="width: 90vw; max-width: 1200px; max-height: 80vh"
   >
-    <ResultSummary :scan-result="props.scanResult" :duration="duration" />
+    <ResultSummary :scan-result="props.scanResult" :duration="duration">
+      <template #actions>
+        <SplitButton
+          v-if="grouped.length > 0"
+          label="Export"
+          icon="fas fa-download"
+          :model="exportMenuItems"
+          size="small"
+          :base-z-index="10000"
+          class="ml-2"
+          @click="onExportCsv"
+        />
+      </template>
+    </ResultSummary>
 
     <div class="flex flex-1 min-h-0">
       <div
@@ -114,7 +237,7 @@ function onDragStart(e: MouseEvent) {
               <span class="text-[10px] text-surface-500">
                 ({{ group.matches.length }})
               </span>
-              <div class="ml-auto">
+              <div class="ml-auto flex items-center gap-0.5">
                 <Button
                   v-tooltip.top="'Copy All'"
                   icon="fas fa-copy"
@@ -123,6 +246,16 @@ function onDragStart(e: MouseEvent) {
                   severity="secondary"
                   class="!w-6 !h-6"
                   @click.stop="handleCopyAll(group.matches)"
+                />
+                <Button
+                  v-if="group.matches.some((m) => m.requestId !== 'inline')"
+                  v-tooltip.top="'Report All to Findings'"
+                  icon="fas fa-flag"
+                  text
+                  size="small"
+                  severity="secondary"
+                  class="!w-6 !h-6"
+                  @click.stop="handleReportAll(group.matches)"
                 />
               </div>
             </div>
@@ -135,7 +268,9 @@ function onDragStart(e: MouseEvent) {
               props.scanResult.entries.length > 1 ? match.sourceUrl : undefined
             "
             :show-navigate="hasAnyBody"
+            :show-report="match.requestId !== 'inline'"
             @show-in-response="handleMatchClick(match)"
+            @report="handleReport"
           />
         </Panel>
       </div>

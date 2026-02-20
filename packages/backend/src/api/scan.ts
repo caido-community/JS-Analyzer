@@ -37,15 +37,26 @@ export function runPassiveScanOnContent(
   content: string,
   url: string,
   analyzers: AnalyzerKind[],
+  requestId?: string,
 ): Result<ScanResult> {
-  const parsed = scanContentSchema.safeParse({ content, url, analyzers });
+  const parsed = scanContentSchema.safeParse({
+    content,
+    url,
+    analyzers,
+    requestId,
+  });
   if (!parsed.success) {
     return { kind: "Error", error: parsed.error.message };
   }
 
+  const effectiveRequestId =
+    parsed.data.requestId !== undefined && parsed.data.requestId.length > 0
+      ? parsed.data.requestId
+      : "inline";
+
   const matches = scanSingleFile(
     {
-      requestId: "inline",
+      requestId: effectiveRequestId,
       url: parsed.data.url,
       content: parsed.data.content,
     },
@@ -64,7 +75,7 @@ export function runPassiveScanOnContent(
       matches.length > 0
         ? [
             {
-              requestId: "inline",
+              requestId: effectiveRequestId,
               url: parsed.data.url,
               matches,
               responseBody: parsed.data.content,

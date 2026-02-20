@@ -4,14 +4,18 @@ import Tag from "primevue/tag";
 import type { AnalyzerMatch } from "shared";
 import { ref } from "vue";
 
+import type { MatchWithSource } from "@/composables/useScanResults";
+
 const props = defineProps<{
-  match: AnalyzerMatch;
+  match: MatchWithSource;
   sourceUrl?: string;
   showNavigate?: boolean;
+  showReport?: boolean;
 }>();
 
 const emit = defineEmits<{
   showInResponse: [match: AnalyzerMatch];
+  report: [match: MatchWithSource];
 }>();
 
 defineOptions({ name: "MatchRow" });
@@ -80,6 +84,16 @@ async function copyValue() {
       severity="secondary"
       class="shrink-0 !w-6 !h-6"
       @click="emit('showInResponse', props.match)"
+    />
+    <Button
+      v-if="props.showReport === true"
+      v-tooltip.top="'Report to Findings'"
+      icon="fas fa-flag"
+      text
+      size="small"
+      severity="secondary"
+      class="shrink-0 !w-6 !h-6"
+      @click="emit('report', props.match)"
     />
   </div>
 </template>

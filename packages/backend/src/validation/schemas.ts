@@ -27,4 +27,9 @@ export const scanContentSchema = z.object({
   content: z.string().min(1),
   url: z.string(),
   analyzers: z.array(z.enum(ANALYZER_KINDS_TUPLE)).min(1),
+  requestId: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val ?? undefined),
 });

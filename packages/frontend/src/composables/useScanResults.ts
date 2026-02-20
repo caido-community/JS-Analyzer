@@ -12,7 +12,7 @@ export type MatchWithSource = AnalyzerMatch & {
   entryIndex: number;
 };
 
-type KindGroup = {
+export type KindGroup = {
   kind: AnalyzerKind;
   label: string;
   icon: string;
@@ -112,7 +112,8 @@ export function copyAllMatches(matches: MatchWithSource[]): string {
   return matches.map((m) => m.value).join("\n");
 }
 
-function escapeHtml(text: string): string {
+/** @lintignore Reserved for future use (v-html, HTML export) */
+export function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -120,6 +121,7 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** @lintignore Reserved for future use (v-html, HTML export) */
 export function highlightBodyAtOffset(
   body: string,
   startOffset: number,
@@ -132,7 +134,95 @@ export function highlightBodyAtOffset(
   return `${escapeHtml(parts.before)}<mark class="js-analyzer-mark">${escapeHtml(parts.highlight)}</mark>${escapeHtml(parts.after)}`;
 }
 
-export type HighlightBodyParts =
+function escapeCsvCell(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+export function exportToCsv(grouped: KindGroup[]): string {
+  const header = "kind,value,confidence,sourceUrl";
+  const rows = grouped.flatMap((g) =>
+    g.matches.map((m) =>
+      [
+        escapeCsvCell(g.kind),
+        escapeCsvCell(m.value),
+        escapeCsvCell(m.confidence),
+        escapeCsvCell(m.sourceUrl),
+      ].join(","),
+    ),
+  );
+  return [header, ...rows].join("\n");
+}
+
+export function exportToJson(scanResult: ScanResult): string {
+  return JSON.stringify(scanResult, null, 2);
+}
+
+const SENSITIVE_KINDS: Set<string> = new Set([
+  "secrets",
+  "dependencyConfusion",
+  "sensitiveData",
+]);
+
+function normalizeValueForDedupe(value: string, kind: string): string {
+  const trimmed = value.trim().replace(/\s+/g, " ");
+  if (SENSITIVE_KINDS.has(kind) || trimmed.length > 80) {
+    return `${trimmed.length}:${trimmed.slice(0, 20)}`;
+  }
+  return trimmed;
+}
+
+export function buildFindingDedupeKey(
+  requestId: string,
+  analyzerKind: string,
+  value: string,
+): string {
+  const normalized = normalizeValueForDedupe(value, analyzerKind);
+  return `${requestId}|${analyzerKind}|${normalized}`;
+}
+
+export function buildFindingDescription(
+  match: MatchWithSource,
+  sourceUrl: string,
+): string {
+  const kindLabel = ANALYZER_LABELS[match.analyzerKind] ?? match.analyzerKind;
+  const value =
+    match.value.length > 500
+      ? `${match.value.slice(0, 500)}\n...`
+      : match.value;
+  const valueBlock =
+    value.includes("\n") || value.length > 80
+      ? `\n\`\`\`\n${value}\n\`\`\``
+      : ` \`${value}\``;
+  return [
+    `**Type:** ${kindLabel}`,
+    `**Severity:** ${match.confidence}`,
+    `**Source:** ${sourceUrl}`,
+    `**Offset:** ${match.startOffset}-${match.endOffset}`,
+    `**Match:**${valueBlock}`,
+  ].join("\n\n");
+}
+
+export function buildFindingTitle(match: MatchWithSource): string {
+  const kindLabel = ANALYZER_LABELS[match.analyzerKind] ?? match.analyzerKind;
+  return `JS Analyzer: ${kindLabel}`;
+}
+
+export function downloadFile(content: string, filename: string): void {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  /* eslint-disable compat/compat -- URL.createObjectURL/revokeObjectURL required for file download */
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+  /* eslint-enable compat/compat */
+}
+
+type HighlightBodyParts =
   | { escaped: string }
   | { before: string; highlight: string; after: string };
 

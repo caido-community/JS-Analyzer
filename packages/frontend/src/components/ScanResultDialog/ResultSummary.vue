@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ScanResult } from "shared";
 
-import { getAnalyzerLabel } from "./useScanResults";
+import { getAnalyzerLabel } from "@/composables/useScanResults";
 
 const props = defineProps<{
   scanResult: ScanResult;
@@ -36,6 +36,7 @@ defineOptions({ name: "ResultSummary" });
       <span class="text-surface-500">
         {{ props.scanResult.analyzers.map(getAnalyzerLabel).join(", ") }}
       </span>
+      <slot name="actions" />
     </div>
   </div>
 </template>

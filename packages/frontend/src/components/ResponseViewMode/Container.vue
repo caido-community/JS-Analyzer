@@ -2,21 +2,21 @@
 import type { Caido, ResponseFull } from "@caido/sdk-frontend";
 import Button from "primevue/button";
 import Panel from "primevue/panel";
-import { ALL_ANALYZER_KINDS, type AnalyzerKind, type ScanResult } from "shared";
+import { ALL_ANALYZER_KINDS, type ScanResult } from "shared";
 import { computed, onMounted, ref } from "vue";
 
 import MatchRow from "@/components/ScanResultDialog/MatchRow.vue";
 import {
   copyAllMatches,
-  getAnalyzerIcon,
-  getAnalyzerLabel,
   type MatchWithSource,
-} from "@/components/ScanResultDialog/useScanResults";
+  useScanResults,
+} from "@/composables/useScanResults";
 import type { FrontendSDK } from "@/types";
 
 const props = defineProps<{
   sdk: Caido;
   response: ResponseFull;
+  request?: { id?: string };
 }>();
 
 defineOptions({ name: "ResponseViewMode" });
@@ -30,6 +30,28 @@ type ViewState =
 const state = ref<ViewState>({ type: "Idle" });
 const typedSdk = computed(() => props.sdk as unknown as FrontendSDK);
 
+const scanResultRef = computed<ScanResult>(() =>
+  state.value.type === "Success"
+    ? state.value.data
+    : {
+        id: "",
+        status: "Complete",
+        startedAt: "",
+        completedAt: "",
+        totalFiles: 0,
+        totalMatches: 0,
+        entries: [],
+        analyzers: [],
+      },
+);
+
+const { grouped } = useScanResults(scanResultRef);
+
+const totalMatches = computed(() => {
+  if (state.value.type !== "Success") return 0;
+  return state.value.data.totalMatches;
+});
+
 function extractResponseBody(raw: string): string {
   const separator = raw.indexOf("\r\n\r\n");
   if (separator !== -1) {
@@ -42,45 +64,6 @@ function extractResponseBody(raw: string): string {
   return raw;
 }
 
-type KindGroupLocal = {
-  kind: AnalyzerKind;
-  label: string;
-  icon: string;
-  matches: MatchWithSource[];
-};
-
-const groupedByKind = computed<KindGroupLocal[]>(() => {
-  if (state.value.type !== "Success") return [];
-  const entry = state.value.data.entries[0];
-  if (entry === undefined) return [];
-
-  const groups = new Map<AnalyzerKind, MatchWithSource[]>();
-  for (const match of entry.matches) {
-    const existing = groups.get(match.analyzerKind) ?? [];
-    existing.push({
-      ...match,
-      sourceUrl: entry.url,
-      requestId: entry.requestId,
-      entryIndex: 0,
-    });
-    groups.set(match.analyzerKind, existing);
-  }
-
-  return Array.from(groups.entries())
-    .map(([kind, matches]) => ({
-      kind,
-      label: getAnalyzerLabel(kind),
-      icon: getAnalyzerIcon(kind),
-      matches,
-    }))
-    .sort((a, b) => b.matches.length - a.matches.length);
-});
-
-const totalMatches = computed(() => {
-  if (state.value.type !== "Success") return 0;
-  return state.value.data.totalMatches;
-});
-
 async function runAnalysis() {
   state.value = { type: "Loading" };
   try {
@@ -90,10 +73,12 @@ async function runAnalysis() {
       return;
     }
 
+    const requestId = props.request?.id ?? "";
     const result = await typedSdk.value.backend.runPassiveScanOnContent(
       body,
       "",
       ALL_ANALYZER_KINDS,
+      requestId,
     );
     if (result.kind === "Error") {
       state.value = { type: "Error", error: result.error };
@@ -163,17 +148,12 @@ onMounted(() => {
         />
       </div>
 
-      <div v-if="groupedByKind.length === 0" class="text-center py-4">
+      <div v-if="grouped.length === 0" class="text-center py-4">
         <i class="fas fa-check-circle text-green-500 text-lg mb-1" />
         <p class="text-surface-400 text-sm">No matches found.</p>
       </div>
 
-      <Panel
-        v-for="group in groupedByKind"
-        :key="group.kind"
-        toggleable
-        class="mb-2"
-      >
+      <Panel v-for="group in grouped" :key="group.kind" toggleable class="mb-2">
         <template #header>
           <div class="flex items-center gap-2 flex-1">
             <i :class="group.icon" class="text-surface-400" />
