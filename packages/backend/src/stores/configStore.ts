@@ -1,16 +1,10 @@
+import { ALL_ANALYZER_KINDS } from "shared";
 import type { AnalyzerKind, UserConfig } from "shared";
 
 import { GlobalStore } from "./projectStore";
 
 const DEFAULT_USER_CONFIG: UserConfig = {
-  enabledAnalyzers: [
-    "secrets",
-    "subdomains",
-    "cloudUrls",
-    "apiEndpoints",
-    "dependencyConfusion",
-    "inlineSourceMap",
-  ] satisfies AnalyzerKind[],
+  enabledAnalyzers: [...ALL_ANALYZER_KINDS] as AnalyzerKind[],
   autoScanEnabled: false,
   inScopeOnly: false,
   allowNetworkRequests: false,

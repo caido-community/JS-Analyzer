@@ -20,6 +20,9 @@ export function updateConfig(
   }
 
   const store = getConfigStore();
-  store.update((current) => ({ ...current, ...parsed.data }));
+  store.update((current) => ({
+    ...current,
+    ...(parsed.data as Partial<UserConfig>),
+  }));
   return { kind: "Ok", value: store.get() };
 }

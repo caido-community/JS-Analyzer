@@ -1,62 +1,21 @@
-import { Classic } from "@caido/primevue";
-import { createPinia } from "pinia";
-import PrimeVue from "primevue/config";
 import { ALL_ANALYZER_KINDS } from "shared";
-import { createApp } from "vue";
 
 import ResponseViewModeContainer from "./components/ResponseViewMode/Container.vue";
 import ScanResultDialogContainer from "./components/ScanResultDialog/Container.vue";
 import { highlightMatchesExtension } from "./extensions/highlightMatches";
-import { SDKPlugin } from "./plugins/sdk";
 import "./styles/index.css";
 import type { FrontendSDK } from "./types";
-import App from "./views/App.vue";
 
 const Commands = {
   runPassiveScan: "js-analyzer.run-passive-scan",
 } as const;
 
-function isJsResponse(contentType: string, path: string): boolean {
-  const ct = contentType.toLowerCase();
-  if (
-    ct.includes("javascript") ||
-    ct.includes("application/json") ||
-    ct.includes("text/json")
-  ) {
-    return true;
-  }
+function isJsResponse(path: string): boolean {
   const cleanPath = path.split("?")[0] ?? path;
   return /\.(js|mjs|cjs|json|map)$/i.test(cleanPath);
 }
 
 export const init = (sdk: FrontendSDK) => {
-  const app = createApp(App);
-  const pinia = createPinia();
-
-  app.use(pinia);
-  app.use(PrimeVue, {
-    unstyled: true,
-    pt: Classic,
-  });
-  app.use(SDKPlugin, sdk);
-
-  const root = document.createElement("div");
-  Object.assign(root.style, {
-    height: "100%",
-    width: "100%",
-  });
-  root.id = "plugin--frontend-vue";
-
-  app.mount(root);
-
-  sdk.navigation.addPage("/js-analyzer", {
-    body: root,
-  });
-
-  sdk.sidebar.registerItem("JS Analyzer", "/js-analyzer", {
-    icon: "fas fa-file-code",
-  });
-
   sdk.commands.register(Commands.runPassiveScan, {
     name: "Run JS Analyzer - Passive scan",
     group: "JS Analyzer",
@@ -114,14 +73,19 @@ export const init = (sdk: FrontendSDK) => {
 
   sdk.commandPalette.register(Commands.runPassiveScan);
 
-  sdk.httpHistory.addResponseViewMode({
+  const jsAnalysisViewMode = {
     label: "JS Analysis",
     view: { component: ResponseViewModeContainer },
-    when: (_response, request) => {
+    when: (_response: unknown, request: { path?: string }) => {
       const path = request.path ?? "";
-      return isJsResponse("", path);
+      return isJsResponse(path);
     },
-  });
+  };
+
+  sdk.httpHistory.addResponseViewMode(jsAnalysisViewMode);
+  sdk.intercept.addResponseViewMode(jsAnalysisViewMode);
+  sdk.replay.addResponseViewMode(jsAnalysisViewMode);
+  sdk.sitemap.addResponseViewMode(jsAnalysisViewMode);
 
   sdk.httpHistory.addResponseEditorExtension(highlightMatchesExtension);
 };

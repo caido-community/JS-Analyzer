@@ -25,6 +25,31 @@ function generateScanId(): string {
   return `scan-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function extractPathname(url: string): string {
+  const queryIndex = url.indexOf("?");
+  const hashIndex = url.indexOf("#");
+  const end =
+    queryIndex !== -1 ? queryIndex : hashIndex !== -1 ? hashIndex : url.length;
+  return url.slice(0, end);
+}
+
+function isJsOrJsonUrl(url: string): boolean {
+  const path = extractPathname(url);
+  const lower = path.toLowerCase();
+  return lower.endsWith(".js") || lower.endsWith(".json");
+}
+
+function getUrlDedupeKey(url: string): string {
+  const path = extractPathname(url);
+  const match = path.match(/^(?:https?:\/\/)?([^/?#]+)(\/[^?#]*)?/);
+  if (match !== null) {
+    const host = match[1] ?? "";
+    const pathPart = match[2] ?? "/";
+    return `${host}${pathPart}`;
+  }
+  return path;
+}
+
 export async function startPassiveScan(
   requestIds: string[],
   analyzers: AnalyzerKind[],
@@ -45,10 +70,9 @@ export async function startPassiveScan(
     analyzers,
   };
 
-  emit("scan-started", { scanId, totalFiles: requestIds.length });
-
   const files: ScanFileInput[] = [];
   const rawContents = new Map<string, string>();
+  const seenUrls = new Set<string>();
 
   for (const requestId of requestIds) {
     if (abortSignal.aborted) break;
@@ -58,6 +82,13 @@ export async function startPassiveScan(
 
     const { request, response } = reqRes;
     if (response === undefined) continue;
+
+    const url = request.getUrl();
+    if (!isJsOrJsonUrl(url)) continue;
+
+    const dedupeKey = getUrlDedupeKey(url);
+    if (seenUrls.has(dedupeKey)) continue;
+    seenUrls.add(dedupeKey);
 
     const body = response.getBody();
     if (body === undefined) continue;
@@ -69,10 +100,12 @@ export async function startPassiveScan(
 
     files.push({
       requestId,
-      url: request.getUrl(),
+      url,
       content,
     });
   }
+
+  emit("scan-started", { scanId, totalFiles: files.length });
 
   let entries: ScanResultEntry[];
 

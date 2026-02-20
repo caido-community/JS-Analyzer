@@ -4,7 +4,13 @@ export type AnalyzerKind =
   | "cloudUrls"
   | "apiEndpoints"
   | "dependencyConfusion"
-  | "inlineSourceMap";
+  | "inlineSourceMap"
+  | "securitySinks"
+  | "sensitiveData"
+  | "callPatterns"
+  | "stringExpressions"
+  | "frameworkPatterns"
+  | "chunkDiscovery";
 
 export const ALL_ANALYZER_KINDS: AnalyzerKind[] = [
   "secrets",
@@ -13,6 +19,12 @@ export const ALL_ANALYZER_KINDS: AnalyzerKind[] = [
   "apiEndpoints",
   "dependencyConfusion",
   "inlineSourceMap",
+  "securitySinks",
+  "sensitiveData",
+  "callPatterns",
+  "stringExpressions",
+  "frameworkPatterns",
+  "chunkDiscovery",
 ];
 
 export type ScanStatus = "Idle" | "Scanning" | "Complete" | "Error";

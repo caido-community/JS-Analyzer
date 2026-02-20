@@ -46,6 +46,7 @@ const hasAnyBody = computed(() =>
 
 function handleMatchClick(match: MatchWithSource) {
   activeMatch.value = match;
+  props.sdk.httpHistory.scrollTo(match.requestId);
 }
 
 async function handleCopyAll(matches: MatchWithSource[]) {
@@ -159,6 +160,11 @@ function onDragStart(e: MouseEvent) {
                 activeMatch.rawStartOffset ?? activeMatch.startOffset
               "
               :highlight-end="activeMatch.rawEndOffset ?? activeMatch.endOffset"
+              :source-url="
+                props.scanResult.entries.length > 1
+                  ? activeMatch.sourceUrl
+                  : undefined
+              "
             />
           </template>
           <div
@@ -172,17 +178,6 @@ function onDragStart(e: MouseEvent) {
           </div>
         </div>
       </template>
-    </div>
-
-    <div
-      class="flex justify-end px-3 py-1.5 border-t border-surface-700 shrink-0"
-    >
-      <Button
-        label="Close"
-        severity="contrast"
-        size="small"
-        @click="emit('close')"
-      />
     </div>
   </div>
 </template>

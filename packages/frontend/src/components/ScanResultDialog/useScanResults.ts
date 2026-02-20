@@ -26,6 +26,12 @@ const ANALYZER_LABELS: Record<AnalyzerKind, string> = {
   apiEndpoints: "API Endpoints",
   dependencyConfusion: "Dependency Confusion",
   inlineSourceMap: "Source Maps",
+  securitySinks: "Security Sinks",
+  sensitiveData: "Sensitive Data",
+  callPatterns: "Call Patterns",
+  stringExpressions: "String Expressions",
+  frameworkPatterns: "Framework Patterns",
+  chunkDiscovery: "Chunk Discovery",
 };
 
 const ANALYZER_ICONS: Record<AnalyzerKind, string> = {
@@ -35,6 +41,12 @@ const ANALYZER_ICONS: Record<AnalyzerKind, string> = {
   apiEndpoints: "fas fa-link",
   dependencyConfusion: "fas fa-box",
   inlineSourceMap: "fas fa-map",
+  securitySinks: "fas fa-shield-alt",
+  sensitiveData: "fas fa-exclamation-triangle",
+  callPatterns: "fas fa-phone-alt",
+  stringExpressions: "fas fa-quote-right",
+  frameworkPatterns: "fas fa-layer-group",
+  chunkDiscovery: "fas fa-puzzle-piece",
 };
 
 export function getAnalyzerLabel(kind: AnalyzerKind): string {
@@ -113,14 +125,32 @@ export function highlightBodyAtOffset(
   startOffset: number,
   endOffset: number,
 ): string {
+  const parts = getHighlightBodyParts(body, startOffset, endOffset);
+  if ("escaped" in parts) {
+    return escapeHtml(parts.escaped);
+  }
+  return `${escapeHtml(parts.before)}<mark class="js-analyzer-mark">${escapeHtml(parts.highlight)}</mark>${escapeHtml(parts.after)}`;
+}
+
+export type HighlightBodyParts =
+  | { escaped: string }
+  | { before: string; highlight: string; after: string };
+
+export function getHighlightBodyParts(
+  body: string,
+  startOffset: number,
+  endOffset: number,
+): HighlightBodyParts {
   const safeStart = Math.max(0, startOffset);
   const safeEnd = Math.min(body.length, endOffset);
 
-  if (safeStart >= safeEnd) return escapeHtml(body);
+  if (safeStart >= safeEnd) {
+    return { escaped: body };
+  }
 
-  const before = escapeHtml(body.slice(0, safeStart));
-  const matched = escapeHtml(body.slice(safeStart, safeEnd));
-  const after = escapeHtml(body.slice(safeEnd));
-
-  return `${before}<mark class="js-analyzer-mark">${matched}</mark>${after}`;
+  return {
+    before: body.slice(0, safeStart),
+    highlight: body.slice(safeStart, safeEnd),
+    after: body.slice(safeEnd),
+  };
 }
