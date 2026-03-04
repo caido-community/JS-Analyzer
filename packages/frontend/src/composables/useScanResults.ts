@@ -112,28 +112,6 @@ export function copyAllMatches(matches: MatchWithSource[]): string {
   return matches.map((m) => m.value).join("\n");
 }
 
-/** @lintignore Reserved for future use (v-html, HTML export) */
-export function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-/** @lintignore Reserved for future use (v-html, HTML export) */
-export function highlightBodyAtOffset(
-  body: string,
-  startOffset: number,
-  endOffset: number,
-): string {
-  const parts = getHighlightBodyParts(body, startOffset, endOffset);
-  if ("escaped" in parts) {
-    return escapeHtml(parts.escaped);
-  }
-  return `${escapeHtml(parts.before)}<mark class="js-analyzer-mark">${escapeHtml(parts.highlight)}</mark>${escapeHtml(parts.after)}`;
-}
-
 function escapeCsvCell(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
     return `"${value.replace(/"/g, '""')}"`;

@@ -9,13 +9,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "js-beautify": "^1.15.4",
+    "js-beautify": "1.15.4",
     "shared": "workspace:*",
-    "zod": "^4.3.6"
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@caido/sdk-backend": "^0.55.3",
-    "@types/js-beautify": "^1.14.3",
-    "vitest": "^2.1.0"
+    "@caido/sdk-backend": "0.55.3",
+    "@types/js-beautify": "1.14.3",
+    "vitest": "2.1.0"
   }
 }

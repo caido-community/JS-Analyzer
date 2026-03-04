@@ -3,6 +3,9 @@ import type { RawConfigurationOrFn } from "knip/dist/types/config.js";
 const config: RawConfigurationOrFn = {
   ignoreIssues: {
     "packages/frontend/src/composables/useScanResults.ts": ["exports", "types"],
+    "packages/frontend/src/composables/useResponseAnalysis.ts": ["exports", "types"],
+    "packages/frontend/src/services/scanService.ts": ["exports", "types"],
+    "packages/frontend/src/extensions/highlightMatches.ts": ["exports", "types"],
     "packages/backend/src/analyzers/index.ts": ["exports", "types"],
     "packages/backend/src/analyzers/runPassiveScan.ts": ["exports", "types"],
     "packages/backend/src/analyzers/types.ts": ["exports", "types"],

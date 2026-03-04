@@ -1,7 +1,7 @@
 import { type Extension, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 
-const setHighlightEffect = StateEffect.define<
+export const setHighlightEffect = StateEffect.define<
   { from: number; to: number } | undefined
 >();
 

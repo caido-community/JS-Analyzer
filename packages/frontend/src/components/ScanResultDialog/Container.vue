@@ -171,8 +171,8 @@ async function handleReportAll(matches: MatchWithSource[]) {
 function onDragStart(e: MouseEvent) {
   e.preventDefault();
   isDragging.value = true;
-  const container = (e.target as HTMLElement).parentElement;
-  if (container === null) return;
+  const container = (e.target as HTMLElement).parentElement ?? undefined;
+  if (container === undefined) return;
   const rect = container.getBoundingClientRect();
 
   const onMove = (moveEvent: MouseEvent) => {
@@ -278,7 +278,10 @@ function onDragStart(e: MouseEvent) {
       <template v-if="hasAnyBody">
         <div
           class="w-1 shrink-0 cursor-col-resize hover:bg-primary-500/50 transition-colors"
-          :class="isDragging ? 'bg-primary-500/50' : 'bg-surface-700'"
+          :class="{
+            'bg-primary-500/50': isDragging,
+            'bg-surface-700': !isDragging,
+          }"
           @mousedown="onDragStart"
         />
 

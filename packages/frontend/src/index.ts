@@ -1,8 +1,9 @@
 import { ALL_ANALYZER_KINDS } from "shared";
 
-import ResponseViewModeContainer from "./components/ResponseViewMode/Container.vue";
-import ScanResultDialogContainer from "./components/ScanResultDialog/Container.vue";
+import { ResponseViewModeContainer } from "./components/ResponseViewMode";
+import { ScanResultDialogContainer } from "./components/ScanResultDialog";
 import { highlightMatchesExtension } from "./extensions/highlightMatches";
+import { runPassiveScan } from "./services/scanService";
 import "./styles/index.css";
 import type { FrontendSDK } from "./types";
 
@@ -31,10 +32,7 @@ export const init = (sdk: FrontendSDK) => {
         duration: 2000,
       });
 
-      const result = await sdk.backend.runPassiveScan(
-        requestIds,
-        ALL_ANALYZER_KINDS,
-      );
+      const result = await runPassiveScan(sdk, requestIds, ALL_ANALYZER_KINDS);
 
       if (result.kind === "Error") {
         sdk.window.showToast(result.error, { variant: "error" });

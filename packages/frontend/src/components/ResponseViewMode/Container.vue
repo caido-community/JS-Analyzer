@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { Caido, ResponseFull } from "@caido/sdk-frontend";
+import type { ResponseFull } from "@caido/sdk-frontend";
 import Button from "primevue/button";
 import Panel from "primevue/panel";
-import { ALL_ANALYZER_KINDS, type ScanResult } from "shared";
-import { computed, onMounted, ref } from "vue";
 
 import MatchRow from "@/components/ScanResultDialog/MatchRow.vue";
+import { useResponseAnalysis } from "@/composables/useResponseAnalysis";
 import {
   copyAllMatches,
   type MatchWithSource,
@@ -14,91 +13,25 @@ import {
 import type { FrontendSDK } from "@/types";
 
 const props = defineProps<{
-  sdk: Caido;
+  sdk: FrontendSDK;
   response: ResponseFull;
   request?: { id?: string };
 }>();
 
 defineOptions({ name: "ResponseViewMode" });
 
-type ViewState =
-  | { type: "Idle" }
-  | { type: "Loading" }
-  | { type: "Error"; error: string }
-  | { type: "Success"; data: ScanResult };
-
-const state = ref<ViewState>({ type: "Idle" });
-const typedSdk = computed(() => props.sdk as unknown as FrontendSDK);
-
-const scanResultRef = computed<ScanResult>(() =>
-  state.value.type === "Success"
-    ? state.value.data
-    : {
-        id: "",
-        status: "Complete",
-        startedAt: "",
-        completedAt: "",
-        totalFiles: 0,
-        totalMatches: 0,
-        entries: [],
-        analyzers: [],
-      },
+const { state, scanResult, totalMatches, runAnalysis } = useResponseAnalysis(
+  props.sdk,
+  props.response,
+  props.request?.id,
 );
 
-const { grouped } = useScanResults(scanResultRef);
-
-const totalMatches = computed(() => {
-  if (state.value.type !== "Success") return 0;
-  return state.value.data.totalMatches;
-});
-
-function extractResponseBody(raw: string): string {
-  const separator = raw.indexOf("\r\n\r\n");
-  if (separator !== -1) {
-    return raw.slice(separator + 4);
-  }
-  const fallback = raw.indexOf("\n\n");
-  if (fallback !== -1) {
-    return raw.slice(fallback + 2);
-  }
-  return raw;
-}
-
-async function runAnalysis() {
-  state.value = { type: "Loading" };
-  try {
-    const body = extractResponseBody(props.response.raw);
-    if (body.length === 0) {
-      state.value = { type: "Error", error: "Response body is empty" };
-      return;
-    }
-
-    const requestId = props.request?.id ?? "";
-    const result = await typedSdk.value.backend.runPassiveScanOnContent(
-      body,
-      "",
-      ALL_ANALYZER_KINDS,
-      requestId,
-    );
-    if (result.kind === "Error") {
-      state.value = { type: "Error", error: result.error };
-      return;
-    }
-    state.value = { type: "Success", data: result.value };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    state.value = { type: "Error", error: message };
-  }
-}
+const { grouped } = useScanResults(scanResult);
 
 async function handleCopyAll(matches: MatchWithSource[]) {
   const text = copyAllMatches(matches);
   await navigator.clipboard.writeText(text);
 }
-
-onMounted(() => {
-  runAnalysis();
-});
 </script>
 
 <template>
