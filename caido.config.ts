@@ -14,8 +14,8 @@ export default defineConfig({
   description: "JavaScript and static file analysis for Caido",
   version: "1.0.0",
   author: {
-    name: "Amr Elsagaei",
-    email: "amr@caido.io",
+    name: "Caido Labs Inc.",
+    email: "dev@caido.io",
     url: "https://caido.io",
   },
   plugins: [
