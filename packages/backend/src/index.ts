@@ -1,17 +1,65 @@
-import type { DefineAPI, SDK } from "caido:plugin";
+import type { DefineAPI, DefineEvents, SDK } from "caido:plugin";
+import type {
+  AssetDetectedEvent,
+  Result,
+  ScanCompleteEvent,
+  ScanProgressEvent,
+} from "shared";
 
-const generateRandomString = (sdk: SDK, length: number) => {
-  const randomString = Math.random()
-    .toString(36)
-    .substring(2, length + 2);
-  sdk.console.log(`Generating random string: ${randomString}`);
-  return randomString;
-};
+import { getConfig, updateConfig } from "./api/config";
+import {
+  cancelScan,
+  getScanResults,
+  runPassiveScan,
+  runPassiveScanOnContent,
+} from "./api/scan";
+import { getStaticAssets } from "./api/staticAssets";
+import { setSDK } from "./sdk";
+import { registerAutoScan } from "./services/autoScanService";
+import { getScanResultsStore } from "./stores";
 
-export type API = DefineAPI<{
-  generateRandomString: typeof generateRandomString;
+export type BackendEvents = DefineEvents<{
+  "scan-progress": (data: ScanProgressEvent) => void;
+  "scan-complete": (data: ScanCompleteEvent) => void;
+  "asset-detected": (data: AssetDetectedEvent) => void;
 }>;
 
-export function init(sdk: SDK<API>) {
-  sdk.api.register("generateRandomString", generateRandomString);
+function ping(): Result<{ ok: true }> {
+  return { kind: "Ok", value: { ok: true } };
+}
+
+export type API = DefineAPI<{
+  ping: typeof ping;
+  getStaticAssets: typeof getStaticAssets;
+  getConfig: typeof getConfig;
+  updateConfig: typeof updateConfig;
+  runPassiveScan: typeof runPassiveScan;
+  runPassiveScanOnContent: typeof runPassiveScanOnContent;
+  getScanResults: typeof getScanResults;
+  cancelScan: typeof cancelScan;
+}>;
+
+export function init(sdk: SDK<API, BackendEvents>) {
+  setSDK(sdk);
+
+  sdk.api.register("ping", ping);
+  sdk.api.register("getStaticAssets", getStaticAssets);
+  sdk.api.register("getConfig", getConfig);
+  sdk.api.register("updateConfig", updateConfig);
+  sdk.api.register("runPassiveScan", runPassiveScan);
+  sdk.api.register("runPassiveScanOnContent", runPassiveScanOnContent);
+  sdk.api.register("getScanResults", getScanResults);
+  sdk.api.register("cancelScan", cancelScan);
+
+  registerAutoScan(sdk);
+
+  const scanResultsStore = getScanResultsStore();
+  scanResultsStore.initialize().catch((err) => {
+    sdk.console.error(`Failed to initialize scan results store: ${err}`);
+  });
+
+  sdk.events.onProjectChange((_eventSdk, project) => {
+    const projectId = project !== null ? project.getId() : undefined;
+    scanResultsStore.switchProject(projectId as string | undefined);
+  });
 }

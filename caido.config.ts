@@ -10,9 +10,9 @@ import prefixwrap from "postcss-prefixwrap";
 const id = "frontend-vue";
 export default defineConfig({
   id,
-  name: "Frontend Vue",
-  description: "Plugin template with frontend using VueJS",
-  version: "0.0.0",
+  name: "JS Analyzer",
+  description: "JavaScript and static file analysis for Caido",
+  version: "1.0.0",
   author: {
     name: "Caido Labs Inc.",
     email: "dev@caido.io",
