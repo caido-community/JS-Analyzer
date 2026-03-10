@@ -30,7 +30,7 @@ export const init = (sdk: FrontendSDK) => {
   // Set the ID of the root element
   // Replace this with the value of the prefixWrap plugin in caido.config.ts
   // This is necessary to prevent styling conflicts between plugins
-  root.id = `plugin--frontend-vue`;
+  root.id = `plugin--js-analyzer`;
 
   // Mount the app to the root element
   app.mount(root);
