@@ -14,7 +14,7 @@
 
 # JS Analyzer
 
-JavaScript and static file analysis for Caido. JS Analyzer passively scans `.js`, `.mjs`, `.cjs`, `.json`, and `.map` files intercepted by the proxy and surfaces secrets, API endpoints, cloud URLs, subdomains, security sinks, and more — directly inside Caido.
+JavaScript and static file analysis for Caido. JS Analyzer passively scans `.js`, `.mjs`, `.cjs`, `.json`, and `.map` files intercepted by the proxy and surfaces secrets, API endpoints, cloud URLs, subdomains, security sinks, and more. directly inside Caido.
 
 ## Installation
 
